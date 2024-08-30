@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react';
 export default function SchoolCatalog() {
   const [courses, setCourses] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [sortBy, setSortBy] = useState(''); // State for sorting column
-  const [sortOrder, setSortOrder] = useState('asc'); // State for sorting order
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [currentPage, setCurrentPage] = useState(1);   
+ // State for current page
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,6 +70,26 @@ export default function SchoolCatalog() {
     );
   });
 
+  const pageSize = 5; // Number of courses to show per page
+  const totalPages = Math.ceil(filteredCourses.length / pageSize); // Calculate total pages
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const   
+ startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, filteredCourses.length);
+  const paginatedCourses = filteredCourses.slice(startIndex, endIndex);
+
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
@@ -99,7 +121,7 @@ export default function SchoolCatalog() {
           </tr>
         </thead>
         <tbody>
-          {filteredCourses.map((course) => (
+          {paginatedCourses.map((course) => (
             <tr key={course.id}>
               <td>{course.trimester}</td>
               <td>{course.courseNumber}</td>
@@ -114,8 +136,12 @@ export default function SchoolCatalog() {
         </tbody>
       </table>
       <div className="pagination">
-        <button>Previous</button>
-        <button>Next</button>
+        <button disabled={currentPage === 1} onClick={handlePrevious}>
+          Previous
+        </button>
+        <button disabled={currentPage === totalPages} onClick={handleNext}>
+          Next
+        </button>
       </div>
     </div>
   );
