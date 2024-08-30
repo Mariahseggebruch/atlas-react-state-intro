@@ -18,6 +18,20 @@ export default function SchoolCatalog() {
     fetchData();
   }, []);
 
+  const handleSearchChange   
+ = (event) => {
+    setSearchText(event.target.value.toLowerCase());   
+ // Convert to lowercase for case-insensitive search
+  };
+
+  const filteredCourses = courses.filter((course) => {
+    const searchTermLowerCase = searchText.toLowerCase();
+    return (
+      course.courseNumber.toLowerCase().includes(searchTermLowerCase) ||
+      course.courseName.toLowerCase().includes(searchTermLowerCase)
+    );
+  }); //task 2 end, can push after fixing project 1
+
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
