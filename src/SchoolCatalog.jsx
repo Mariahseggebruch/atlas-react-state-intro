@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 export default function SchoolCatalog() {
   const [courses, setCourses] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [sortBy, setSortBy] = useState(''); // State for sorting column
+  const [sortOrder, setSortOrder] = useState('asc'); // State for sorting order
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,34 +23,83 @@ export default function SchoolCatalog() {
   const handleSearchChange   
  = (event) => {
     setSearchText(event.target.value.toLowerCase());   
- // Convert to lowercase for case-insensitive search
+
   };
 
-  const filteredCourses = courses.filter((course) => {
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Toggle order
+    } else {
+      setSortBy(column);
+      setSortOrder('asc'); // Reset order for new column
+    }
+  };
+
+  const sortedCourses = courses.slice().sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'trimester':
+        comparison = a.trimester.localeCompare(b.trimester);
+        break;
+      case 'courseNumber':
+        comparison = a.courseNumber.localeCompare(b.courseNumber);
+        break;
+      case 'courseName':
+        comparison = a.courseName.localeCompare(b.courseName);
+        break;
+      case 'semesterCredits':
+        comparison = a.semesterCredits - b.semesterCredits;
+        break;
+      case 'totalClockHours':
+        comparison = a.totalClockHours - b.totalClockHours;
+        break;
+      default:
+        break;
+    }
+
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
+  const filteredCourses = sortedCourses.filter((course) => {
     const searchTermLowerCase = searchText.toLowerCase();
     return (
       course.courseNumber.toLowerCase().includes(searchTermLowerCase) ||
       course.courseName.toLowerCase().includes(searchTermLowerCase)
     );
-  }); //task 2 end, can push after fixing project 1
+  });
 
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
-      <input type="text" placeholder="Search" />
+      <input
+        type="text"
+        placeholder="Search"
+        value={searchText}
+        onChange={handleSearchChange}
+      />
       <table>
         <thead>
           <tr>
-            <th>Trimester</th>
-            <th>Course Number</th>
-            <th>Courses Name</th>
-            <th>Semester Credits</th>
-            <th>Total Clock Hours</th>
+            <th onClick={() => handleSort('trimester')}>
+              Trimester
+            </th>
+            <th onClick={() => handleSort('courseNumber')}>
+              Course Number
+            </th>
+            <th onClick={() => handleSort('courseName')}>
+              Course Name
+            </th>
+            <th onClick={() => handleSort('semesterCredits')}>
+              Semester Credits
+            </th>
+            <th onClick={() => handleSort('totalClockHours')}>
+              Total Clock Hours
+            </th>
             <th>Enroll</th>
           </tr>
         </thead>
         <tbody>
-        {courses.map((course) => (
+          {filteredCourses.map((course) => (
             <tr key={course.id}>
               <td>{course.trimester}</td>
               <td>{course.courseNumber}</td>
@@ -56,7 +107,7 @@ export default function SchoolCatalog() {
               <td>{course.semesterCredits}</td>
               <td>{course.totalClockHours}</td>
               <td>
-              <button>Enroll</button>
+                <button>Enroll</button>
               </td>
             </tr>
           ))}
