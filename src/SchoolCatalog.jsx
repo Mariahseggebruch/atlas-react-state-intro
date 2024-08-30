@@ -1,4 +1,23 @@
+import React, { useEffect, useState } from 'react';
+
 export default function SchoolCatalog() {
+  const [courses, setCourses] = useState([]);
+  const [searchText, setSearchText] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/courses.json');
+        const data = await response.json();
+        setCourses(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
@@ -15,36 +34,18 @@ export default function SchoolCatalog() {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>PP1000</td>
-            <td>Beginning Procedural Programming</td>
-            <td>2</td>
-            <td>30</td>
-            <td>
+        {courses.map((course) => (
+            <tr key={course.id}>
+              <td>{course.trimester}</td>
+              <td>{course.courseNumber}</td>
+              <td>{course.courseName}</td>
+              <td>{course.semesterCredits}</td>
+              <td>{course.totalClockHours}</td>
+              <td>
               <button>Enroll</button>
-            </td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>PP1100</td>
-            <td>Basic Procedural Programming</td>
-            <td>4</td>
-            <td>50</td>
-            <td>
-              <button>Enroll</button>
-            </td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>OS1000</td>
-            <td>Fundamentals of Open Source Operating Systems</td>
-            <td>2.5</td>
-            <td>37.5</td>
-            <td>
-              <button>Enroll</button>
-            </td>
-          </tr>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <div className="pagination">
