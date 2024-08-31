@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { CourseContext } from './CourseContext';
 
 export default function SchoolCatalog() {
   const [courses, setCourses] = useState([]);
@@ -6,7 +7,7 @@ export default function SchoolCatalog() {
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);   
- // State for current page
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,58 +92,76 @@ export default function SchoolCatalog() {
   const paginatedCourses = filteredCourses.slice(startIndex, endIndex);
 
   return (
-    <div className="school-catalog">
-      <h1>School Catalog</h1>
-      <input
-        type="text"
-        placeholder="Search"
-        value={searchText}
-        onChange={handleSearchChange}
-      />
-      <table>
-        <thead>
-          <tr>
-            <th onClick={() => handleSort('trimester')}>
-              Trimester
-            </th>
-            <th onClick={() => handleSort('courseNumber')}>
-              Course Number
-            </th>
-            <th onClick={() => handleSort('courseName')}>
-              Course Name
-            </th>
-            <th onClick={() => handleSort('semesterCredits')}>
-              Semester Credits
-            </th>
-            <th onClick={() => handleSort('totalClockHours')}>
-              Total Clock Hours
-            </th>
-            <th>Enroll</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedCourses.map((course) => (
-            <tr key={course.id}>
-              <td>{course.trimester}</td>
-              <td>{course.courseNumber}</td>
-              <td>{course.courseName}</td>
-              <td>{course.semesterCredits}</td>
-              <td>{course.totalClockHours}</td>
-              <td>
-                <button>Enroll</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="pagination">
-        <button disabled={currentPage === 1} onClick={handlePrevious}>
-          Previous
-        </button>
-        <button disabled={currentPage === totalPages} onClick={handleNext}>
-          Next
-        </button>
-      </div>
-    </div>
+    <CourseContext.Consumer>
+      {({ enrolledCourses, enrollCourse, dropCourse }) => (
+        <div className="school-catalog">
+          <h1>School Catalog ({enrolledCourses.length} Courses Enrolled)</h1>
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchText}
+            onChange={handleSearchChange}
+          />
+          <table>
+            <thead>
+              <tr>
+                <th onClick={() => handleSort('trimester')}>
+                  Trimester
+                </th>
+                <th onClick={() => handleSort('courseNumber')}>
+                  Course Number
+                </th>
+                <th onClick={() => handleSort('courseName')}>
+                  Course Name
+                </th>
+                <th onClick={() => handleSort('semesterCredits')}>
+                  Semester Credits
+                </th>
+                <th onClick={() => handleSort('totalClockHours')}>
+                  Total Clock Hours
+                </th>
+                <th>Enroll</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedCourses.map((course) => (
+                <tr key={course.id}>
+                  <td>{course.trimester}</td>
+                  <td>{course.courseNumber}</td>
+                  <td>{course.courseName}</td>
+                  <td>{course.semesterCredits}</td>
+                  <td>{course.totalClockHours}</td>
+                  <td>
+                    <button
+                      onClick={() =>
+                        enrolledCourses.some(
+                          (enrolled) => enrolled.courseNumber === course.courseNumber
+                        )
+                          ? dropCourse(course.courseNumber)
+                          : enrollCourse(course)
+                      }
+                    >
+                      {enrolledCourses.some(
+                        (enrolled) => enrolled.courseNumber === course.courseNumber
+                      )
+                        ? 'Drop'
+                        : 'Enroll'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="pagination">
+            <button disabled={currentPage === 1} onClick={handlePrevious}>
+              Previous
+            </button>
+            <button disabled={currentPage === totalPages} onClick={handleNext}>
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </CourseContext.Consumer>
   );
 }

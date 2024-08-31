@@ -7,17 +7,21 @@ export const CourseProvider = ({ children }) => {
  [enrolledCourses, setEnrolledCourses] = useState([]);
 
   const enrollCourse = (course) => {
-    setEnrolledCourses((prevEnrolledCourses) => [...prevEnrolledCourses, course]);
+    if (!enrolledCourses.some(({ courseNumber }) => courseNumber === course.courseNumber)) {
+      setEnrolledCourses((prevEnrolledCourses) => [...prevEnrolledCourses, course]);
+    }
   };
 
-  const dropCourse = (course) => {
+  const dropCourse = (courseNumber) => {
     setEnrolledCourses((prevEnrolledCourses) =>
-      prevEnrolledCourses.filter((c) => c !== course)
+      prevEnrolledCourses.filter(({ courseNumber: c }) => c !== courseNumber)
     );
   };
 
-  return ( // Closing curly brace added here
-    <CourseContext.Provider value={{ enrolledCourses, enrollCourse, dropCourse }}>
+  return (
+    <CourseContext.Provider
+      value={{ enrolledCourses, enrollCourse, dropCourse }}
+    >
       {children}
     </CourseContext.Provider>
   );
