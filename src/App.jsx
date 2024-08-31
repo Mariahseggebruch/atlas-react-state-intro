@@ -1,13 +1,17 @@
-import SchoolCatalog from "./SchoolCatalog";
-import Header from "./Header";
-import ClassSchedule from "./ClassSchedule";
+import React from 'react';
+import Header from './Header';
+import SchoolCatalog from './SchoolCatalog';
+import ClassSchedule from './ClassSchedule';
+import { CourseProvider } from './CourseContext'; // Import CourseProvider
 
 export default function App() {
   return (
     <div>
-      <Header />
-      <SchoolCatalog />
-      <ClassSchedule />
+      <CourseProvider>
+        <Header />
+        <SchoolCatalog />
+        <ClassSchedule />
+      </CourseProvider>
     </div>
   );
 }
